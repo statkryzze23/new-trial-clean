@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>IMO'S Daily Production Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0f1e;--surface:#0d1428;--surface2:#111a32;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --text:#e8edff;--muted:#6b7fa8;
+  --green:#00d68f;--red:#ff4560;--yellow:#ffb400;--blue:#3d8bff;--purple:#b57aff;
+  --font:'Barlow Condensed',sans-serif;
+}
+
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;min-height:100vh;overflow-x:hidden;overflow-y:auto;}
+.shell{display:flex;flex-direction:column;padding:10px 16px 24px;gap:8px;min-height:100vh;}
+::-webkit-scrollbar{width:0;height:0}
+.tv-meta{position:fixed;top:6px;right:10px;z-index:50;display:flex;align-items:center;gap:8px;font-size:.62rem;color:var(--muted);opacity:.55;transition:opacity .2s}
+.tv-meta input{background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:5px;padding:2px 6px;font-size:.62rem;font-family:var(--font)}
+.tv-meta:hover{opacity:1}
+
+/* ══ ALERT BANNER ══ */
+.alert-banner{
+  display:none;align-items:center;gap:12px;
+  padding:8px 18px;border-radius:8px;font-size:1rem;font-weight:800;
+  letter-spacing:1px;text-transform:uppercase;animation:alertPulse 2s infinite;
+}
+.alert-banner.critical{display:flex;background:rgba(255,69,96,0.18);border:2px solid var(--red);color:var(--red)}
+.alert-banner.warning{display:flex;background:rgba(255,180,0,0.15);border:2px solid var(--yellow);color:var(--yellow)}
+.alert-icon{font-size:1.4rem}
+.alert-text{flex:1}
+.alert-depts{font-size:.85rem;font-weight:600;opacity:.85;margin-top:1px}
+@keyframes alertPulse{0%,100%{opacity:1}50%{opacity:.7}}
+
+/* ══ HEADER ══ */
+.hdr{display:grid;grid-template-columns:220px 1fr 280px;align-items:center;
+  background:var(--surface);border:1px solid var(--border2);border-radius:8px;
+  padding:8px 18px;position:relative;overflow:hidden;gap:10px}
+.hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--green) 40%,var(--blue) 60%,transparent)}
+.logo{font-size:2.6rem;font-weight:900;letter-spacing:4px;line-height:1}
+.logo small{display:block;font-size:.7rem;letter-spacing:7px;color:var(--green);font-weight:700}
+.hdr-center{text-align:center}
+.hdr-center h1{font-size:clamp(1.5rem,2.5vw,2.3rem);font-weight:900;letter-spacing:3px;text-transform:uppercase;line-height:1}
+.hdr-date{font-size:.9rem;color:var(--muted);margin-top:4px;letter-spacing:1px}
+.hdr-date strong{color:var(--green)}
+.hdr-right{display:flex;align-items:center;gap:16px;justify-content:flex-end}
+.clock-block{text-align:center}
+.clock{font-size:2.4rem;font-weight:900;letter-spacing:3px;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
+.clock-date{font-size:.7rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:1px}
+.live-block{text-align:right;font-size:.8rem;color:var(--muted);line-height:1.8}
+.live-block strong{display:block;font-size:.9rem;color:var(--text)}
+.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:5px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ══ KPI STRIP ══ */
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:12px 16px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:2px}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.kpi.g::before{background:var(--green)}.kpi.b::before{background:var(--blue)}
+.kpi.y::before{background:var(--yellow)}.kpi.r::before{background:var(--red)}.kpi.p::before{background:var(--purple)}
+.kpi-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted)}
+.kpi-val{font-size:clamp(2.2rem,3.6vw,3.8rem);font-weight:900;line-height:1;letter-spacing:-1px}
+.kpi.g .kpi-val{color:var(--green)}.kpi.b .kpi-val{color:var(--blue)}
+.kpi.y .kpi-val{color:var(--yellow)}.kpi.r .kpi-val{color:var(--red)}.kpi.p .kpi-val{color:var(--purple)}
+.kpi-sub{font-size:.78rem;color:var(--muted)}
+.kpi-sub strong{color:var(--text)}
+.kpi-arrow{font-size:1.4rem;font-weight:900;margin-left:6px;vertical-align:middle}
+.arrow-up{color:var(--green)}.arrow-dn{color:var(--red)}.arrow-eq{color:var(--yellow)}
+.kpi-delta{font-size:.78rem;font-weight:800;letter-spacing:.3px;margin-top:2px;display:flex;align-items:center;gap:4px}
+.d-up{color:var(--green)}.d-dn{color:var(--red)}.d-eq{color:var(--muted)}
+
+/* ══ DEPT TABLE ══ */
+.dept-section{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.sec-hdr{background:var(--surface2);padding:6px 14px;font-size:.72rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:2px;color:var(--muted);
+  border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
+.sec-hdr-count{font-size:.7rem;color:var(--blue);font-weight:600;letter-spacing:0}
+.table-scroll{overflow-x:auto;overflow-y:auto;}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--surface2);padding:8px 10px;font-size:.72rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:left;
+  border-bottom:1px solid var(--border2);white-space:nowrap}
+thead th.r{text-align:right}
+tbody td{padding:8px 10px;font-size:1rem;border-bottom:1px solid var(--border);color:var(--text)}
+tbody td.r{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+tbody td.dept-name{font-weight:900;font-size:1.2rem;letter-spacing:.5px}
+tbody tr:last-child td{border-bottom:none}
+
+tbody tr.row-beat td{background:rgba(0,214,143,0.05)}
+tbody tr.row-beat:hover td{background:rgba(0,214,143,0.09)}
+tbody tr.row-low td{background:rgba(255,69,96,0.06)}
+tbody tr.row-low:hover td{background:rgba(255,69,96,0.1)}
+tbody tr.row-met td{background:transparent}
+tbody tr.row-met:hover td{background:rgba(255,255,255,0.02)}
+
+tbody tr.prod-row td{padding:3px 10px 3px 22px;font-size:.78rem;
+  border-bottom:1px solid rgba(255,255,255,0.03);color:var(--muted)}
+tbody tr.prod-row.row-beat td{background:rgba(0,214,143,0.03)}
+tbody tr.prod-row.row-low td{background:rgba(255,69,96,0.03)}
+tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
+.dept-toggle{cursor:pointer;user-select:none}
+.dept-toggle::before{content:"▶ ";font-size:.6rem;opacity:.5}
+.dept-toggle.open::before{content:"▼ ";opacity:.8}
+
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.7rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+.badge-beat{background:rgba(0,214,143,0.18);color:var(--green)}
+.badge-met{background:rgba(255,180,0,0.15);color:var(--yellow)}
+.badge-low{background:rgba(255,69,96,0.18);color:var(--red)}
+.pct-good{color:var(--green)}.pct-warn{color:var(--yellow)}.pct-bad{color:var(--red)}
+
+.tl{display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:middle;margin-right:6px;box-shadow:0 0 8px currentColor;flex-shrink:0}
+.tl-green{background:var(--green);color:var(--green)}
+.tl-yellow{background:var(--yellow);color:var(--yellow)}
+.tl-red{background:var(--red);color:var(--red)}
+
+.prog-wrap{width:100%;background:rgba(255,255,255,0.07);border-radius:4px;height:7px;margin-top:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.prog-green{background:var(--green)}.prog-yellow{background:var(--yellow)}.prog-red{background:var(--red)}
+
+.eff-score{display:inline-block;min-width:38px;text-align:center;
+  padding:2px 8px;border-radius:6px;font-size:.85rem;font-weight:900;letter-spacing:.5px}
+.eff-a{background:rgba(0,214,143,0.2);color:var(--green)}
+.eff-b{background:rgba(61,139,255,0.2);color:var(--blue)}
+.eff-c{background:rgba(255,180,0,0.2);color:var(--yellow)}
+.eff-d{background:rgba(255,69,96,0.2);color:var(--red)}
+
+.t-up{color:var(--green);font-weight:900}
+.t-dn{color:var(--red);font-weight:900}
+.t-eq{color:var(--yellow);font-weight:900}
+
+/* ══ CHARTS — fixed height so they always render ══ */
+.charts-row{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px;}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:10px 12px;display:flex;flex-direction:column;}
+.chart-card h3{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--muted);margin-bottom:6px;flex-shrink:0}
+.chart-card .chart-wrap{position:relative;height:240px;width:100%;}
+.chart-card canvas{display:block;width:100%!important;height:100%!important;}
+
+/* ══ SPOTLIGHT INSIGHTS ══ */
+.insights-row{display:grid;grid-template-columns:1fr 1fr 1fr 1.1fr;gap:8px}
+.insight{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:10px 14px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden}
+.insight::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+.insight.i-green::before{background:var(--green)}
+.insight.i-red::before{background:var(--red)}
+.insight.i-yellow::before{background:var(--yellow)}
+.insight.i-blue::before{background:var(--blue)}
+.insight-icon{font-size:2.1rem;flex-shrink:0}
+.insight-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted)}
+.insight-val{font-size:1.25rem;font-weight:900;line-height:1.1}
+.insight-name{font-size:.9rem;color:var(--text);font-weight:600;margin-top:1px}
+.insight-sub{font-size:.78rem;color:var(--muted);margin-top:1px}
+.insight.i-green .insight-val{color:var(--green)}
+.insight.i-red .insight-val{color:var(--red)}
+.insight.i-yellow .insight-val{color:var(--yellow)}
+.insight.i-blue .insight-val{color:var(--blue)}
+.notes-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px}
+.notes-card .note-title{font-size:.65rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:1.2px;color:var(--blue);margin-bottom:4px}
+.notes-card ul{list-style:none;padding:0}
+.notes-card ul li{font-size:.78rem;color:var(--muted);padding:2px 0}
+.notes-card ul li::before{content:"• ";color:var(--blue)}
+
+/* ══ LOADING ══ */
+.loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;z-index:9999;transition:opacity .5s}
+.loading-overlay.hidden{opacity:0;pointer-events:none}
+.loading-logo{font-size:4rem;font-weight:900;letter-spacing:10px;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.loading-text{margin-top:12px;font-size:.85rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase}
+.loading-sub{margin-top:6px;font-size:.75rem;color:var(--muted);opacity:.6;letter-spacing:1px}
+.err-row td{color:var(--yellow)!important;text-align:center;padding:18px!important;font-size:.85rem}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-logo">IMO'S</div>
+  <div class="loading-text" id="loadingText">Loading Production Data…</div>
+  <div class="loading-sub" id="loadingSub"></div>
+</div>
+
+<div class="shell">
+
+  <!-- ALERT BANNER -->
+  <div class="alert-banner" id="alertBanner">
+    <span class="alert-icon" id="alertIcon">🔴</span>
+    <div>
+      <div class="alert-text" id="alertText">CRITICAL: Departments below target</div>
+      <div class="alert-depts" id="alertDepts"></div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="hdr">
+    <div class="logo">IMO'S<small>PIZZA</small></div>
+    <div class="hdr-center">
+      <h1>Daily Production Dashboard</h1>
+      <div class="hdr-date">Results for: <strong id="reportDate">—</strong> &nbsp;·&nbsp; vs. <strong id="compareDate" style="color:var(--blue)">yesterday</strong></div>
+    </div>
+    <div class="hdr-right">
+      <div class="clock-block">
+        <div class="clock" id="liveClock">—</div>
+        <div class="clock-date" id="liveClockDate">—</div>
+      </div>
+      <div class="live-block">
+        <span class="live-dot"></span>LIVE
+        <strong id="lastUpdated">—</strong>
+        Last Sync
+      </div>
+    </div>
+  </header>
+
+  <!-- tucked-away manual date override, not for TV viewing but available if needed -->
+  <div class="tv-meta">
+    <span>Override date:</span>
+    <input type="date" id="dateSelector">
+  </div>
+
+  <!-- KPI STRIP -->
+  <div class="kpi-strip" id="kpiStrip"></div>
+
+  <!-- DEPT TABLE -->
+  <div class="dept-section">
+    <div class="sec-hdr">
+      Performance by Department
+      <span class="sec-hdr-count" id="productCount"></span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th>Status</th>
+          <th>Department / Product</th>
+          <th class="r">Output</th>
+          <th class="r">Target</th>
+          <th style="min-width:90px">Progress</th>
+          <th class="r">%</th>
+          <th>Output</th>
+          <th class="r">Labor $</th>
+          <th class="r">Labor Target</th>
+          <th class="r">Labor %</th>
+          <th>Labor</th>
+          <th class="r">Waste %</th>
+          <th>Waste</th>
+          <th class="r">Eff.</th>
+        </tr></thead>
+        <tbody id="deptBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>Output vs Target (by Department)</h3>
+      <div class="chart-wrap"><canvas id="outputChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Waste % — Actual vs Target</h3>
+      <div class="chart-wrap"><canvas id="wasteChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Performance Summary</h3>
+      <div class="chart-wrap"><canvas id="donutChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- SPOTLIGHT INSIGHTS -->
+  <div class="insights-row" id="insightsRow"></div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════════
+const DAILY_CSV  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzyvz1o0LbR3-OzA4wq8xbWF6QmlmeUHhB687TmUdgkAjaFJ4HAvK974Kwgs9OpHuF8XMy1StXOSnp/pub?gid=1870432963&single=true&output=csv";
+const THRESH_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzyvz1o0LbR3-OzA4wq8xbWF6QmlmeUHhB687TmUdgkAjaFJ4HAvK974Kwgs9OpHuF8XMy1StXOSnp/pub?gid=0&single=true&output=csv";
+const REFRESH_MS = 300000;
+let selectedDate = "";
+
+// ── FIX 1: "SH" → "Shell" ─────────────────────────────────
+const DEPT_NAMES = {CH:"Cheese",FP:"Frozen Pizza",MM:"Meat",DM:"Sauces/Dressings",SM:"Sauces/Dressings",SH:"Shell"};
+const PALETTE    = ["#3d8bff","#b57aff","#ffb400","#00d68f","#ff4560","#00c8ff","#ff8c42","#c8ff00"];
+const KNOWN_ORDER= ["Cheese","Frozen Pizza","Meat","Sauces/Dressings","Shell"];
+let DEPT_COLORS  = {};
+
+// ── utils ──────────────────────────────────────────────────
+const fmt   = (n,d=0)=>Number(n).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtC  = n=>"$"+fmt(n,2);
+const fmtP  = n=>fmt(n,2)+"%";
+const pn    = v=>Number(String(v??0).replace(/[$,%\s]/g,""))||0;
+const deptName = code=>DEPT_NAMES[String(code).trim().toUpperCase()]||String(code).trim();
+
+function effScore(outPct, labPct, wastePct, avgWaste){
+  const outScore  = Math.min(outPct/100, 1.3)*100;
+  const labScore  = labPct>0 ? Math.max(0, 200-labPct) : 100;
+  const wasteScore= avgWaste>0 ? Math.max(0, 100-(wastePct/avgWaste-1)*200) : 100;
+  return Math.round((outScore*0.45 + labScore*0.35 + wasteScore*0.2));
+}
+function effClass(s){ return s>=85?"eff-a":s>=70?"eff-b":s>=50?"eff-c":"eff-d"; }
+
+function classify(actual,avg,lowerBetter=false){
+  if(!avg) return "met";
+  const r=actual/avg;
+  if(lowerBetter) return r<0.9?"beat":r>1.1?"low":"met";
+  return r>1.1?"beat":r<0.9?"low":"met";
+}
+
+function arrow(actual, target, lowerBetter=false){
+  if(!target) return "";
+  const r=actual/target;
+  if(lowerBetter){
+    if(r<0.9) return`<span class="t-up">↑</span>`;
+    if(r>1.1) return`<span class="t-dn">↓</span>`;
+    return`<span class="t-eq">→</span>`;
+  }
+  if(r>1.05) return`<span class="t-up">↑</span>`;
+  if(r<0.95) return`<span class="t-dn">↓</span>`;
+  return`<span class="t-eq">→</span>`;
+}
+
+function tl(status){ 
+  return`<span class="tl ${status==="beat"?"tl-green":status==="low"?"tl-red":"tl-yellow"}"></span>`; 
+}
+
+function progBar(pct){
+  const capped=Math.min(pct,100);
+  const cls=pct>=100?"prog-green":pct>=85?"prog-yellow":"prog-red";
+  return`<div class="prog-wrap"><div class="prog-fill ${cls}" style="width:${capped}%"></div></div>`;
+}
+
+function evalRows(rows){
+  return rows.map(r=>{
+    const outS=classify(r.output,r.avgOutput);
+    const labS=classify(r.laborCost,r.avgLabor,true);
+    const wasS=classify(r.wastePct,r.avgWaste,true);
+    const sc={beat:0,met:0,low:0};
+    [outS,labS,wasS].forEach(s=>sc[s]++);
+    const status=sc.low>=2?"low":sc.beat>=2?"beat":"met";
+    return{...r,outS,labS,wasS,status};
+  });
+}
+
+function byDept(rows){
+  const m={};
+  rows.forEach(r=>{
+    const d=r.dept||"Other";
+    if(!m[d])m[d]={dept:d,output:0,avgOutput:0,labor:0,avgLabor:0,
+      wasteSum:0,avgWasteSum:0,count:0,beat:0,met:0,low:0,products:[]};
+    m[d].output+=r.output; m[d].avgOutput+=r.avgOutput;
+    m[d].labor+=r.laborCost; m[d].avgLabor+=r.avgLabor;
+    m[d].wasteSum+=r.wastePct; m[d].avgWasteSum+=r.avgWaste;
+    m[d].count++; m[d][r.status]++; m[d].products.push(r);
+  });
+  const allDepts=Object.keys(m);
+  let ci=0; DEPT_COLORS={};
+  KNOWN_ORDER.forEach(d=>{if(m[d])DEPT_COLORS[d]=PALETTE[ci++%PALETTE.length];});
+  allDepts.filter(d=>!KNOWN_ORDER.includes(d)).sort()
+          .forEach(d=>{DEPT_COLORS[d]=PALETTE[ci++%PALETTE.length];});
+  return[...KNOWN_ORDER.filter(d=>m[d]),
+         ...allDepts.filter(d=>!KNOWN_ORDER.includes(d)).sort()].map(d=>m[d]);
+}
+
+
+function normalizeDate(v){
+ if(!v) return "";
+ const parts=String(v).trim().split("/");
+ if(parts.length===3){
+   const m=parts[0].padStart(2,"0");
+   const d=parts[1].padStart(2,"0");
+   const y=parts[2];
+   return `${y}-${m}-${d}`;
+ }
+ const dt=new Date(v);
+ return isNaN(dt)?"":dt.toISOString().split("T")[0];
+}
+function initializeDateSelector(daily){
+ const selector=document.getElementById("dateSelector");
+ const dates=[...new Set(daily.map(r=>normalizeDate(r["Date"])).filter(Boolean))].sort();
+ if(!dates.length) return;
+ if(!selectedDate) selectedDate=dates[dates.length-1];
+ selector.value=selectedDate;
+ selector.onchange=()=>{selectedDate=selector.value;refresh(false);};
+}
+
+// ── fetch ──────────────────────────────────────────────────
+async function fetchCSV(url){
+  const res=await fetch(url+"&nocache="+Date.now());
+  if(!res.ok) throw new Error(`HTTP ${res.status}`);
+  const text=await res.text();
+  return new Promise(r=>Papa.parse(text,{header:true,skipEmptyLines:true,complete:d=>r(d.data)}));
+}
+
+function mergeData(daily,thresholds,dateStr){
+  const thMap=new Map();
+  thresholds.forEach(t=>{
+    const key=(t["Product No"]||"").trim();
+    if(!key)return;
+    thMap.set(key,{
+      desc:(t["Product Description"]||key).trim(),
+      avgOutput:pn(t["AVG Output"]),avgLabor:pn(t["AVG Labor Cost"]),
+      avgWaste:pn(t["Waste %"]),deptCode:(t["Department"]||"").trim()
+    });
+  });
+  const rows=[];
+  daily.filter(r=>!dateStr || normalizeDate(r["Date"])===dateStr).forEach(r=>{
+    const pno=(r["Product No"]||"").trim();
+    if(!pno)return;
+    const out=pn(r["Total Output"]);
+    if(out===0)return;
+    const t=thMap.get(pno);
+    if(!t){console.warn("No threshold:",pno);return;}
+    const rawDept=(r["Department"]||t.deptCode||"").trim();
+    rows.push({
+      productNo:pno,desc:(r["Product Description"]||t.desc).trim(),
+      dept:deptName(rawDept),output:out,
+      laborCost:pn(r["Labor Cost"]),wastePct:pn(r["Waste %"]),
+      avgOutput:t.avgOutput,avgLabor:t.avgLabor,avgWaste:t.avgWaste,
+      noThreshold:false
+    });
+  });
+  return rows;
+}
+
+function shiftDate(dateStr,days){
+  if(!dateStr) return "";
+  const d=new Date(dateStr+"T00:00:00");
+  if(isNaN(d)) return "";
+  d.setDate(d.getDate()+days);
+  return d.toISOString().split("T")[0];
+}
+
+function pctDelta(curr,prev){
+  if(!prev) return null;
+  return ((curr-prev)/prev)*100;
+}
+
+function deltaBadge(curr,prev,lowerBetter=false,decimals=1){
+  if(prev===null||prev===undefined||prev===0) return `<span class="kpi-delta"><span class="d-eq">— no data yesterday</span></span>`;
+  const d=pctDelta(curr,prev);
+  const good=lowerBetter?d<0:d>0;
+  const flat=Math.abs(d)<1;
+  const cls=flat?"d-eq":good?"d-up":"d-dn";
+  const ar=flat?"→":d>0?"↑":"↓";
+  return `<span class="kpi-delta"><span class="${cls}">${ar} ${d>0?"+":""}${d.toFixed(decimals)}%</span> vs yesterday</span>`;
+}
+
+// ── Alert Banner ───────────────────────────────────────────
+function renderAlert(depts){
+  const critical=depts.filter(d=>{
+    const outPct=d.avgOutput>0?(d.output/d.avgOutput*100):100;
+    return outPct<85;
+  });
+  const warning=depts.filter(d=>{
+    const outPct=d.avgOutput>0?(d.output/d.avgOutput*100):100;
+    return outPct>=85&&outPct<95;
+  });
+  const banner=document.getElementById("alertBanner");
+  const alertText=document.getElementById("alertText");
+  const alertDepts=document.getElementById("alertDepts");
+  const alertIcon=document.getElementById("alertIcon");
+  if(critical.length>0){
+    banner.className="alert-banner critical";
+    alertIcon.textContent="🔴";
+    alertText.textContent=`CRITICAL — ${critical.length} department${critical.length>1?"s":""} significantly below output target`;
+    alertDepts.textContent="Affected: "+critical.map(d=>d.dept).join(" · ");
+  } else if(warning.length>0){
+    banner.className="alert-banner warning";
+    alertIcon.textContent="🟡";
+    alertText.textContent=`WARNING — ${warning.length} department${warning.length>1?"s":""} approaching low output`;
+    alertDepts.textContent="Watch: "+warning.map(d=>d.dept).join(" · ");
+  } else {
+    banner.className="alert-banner";
+  }
+}
+
+// ── KPIs ───────────────────────────────────────────────────
+function renderKPIs(rows,prevRows){
+  const totalOut  =rows.reduce((s,r)=>s+r.output,0);
+  const totalLab  =rows.reduce((s,r)=>s+r.laborCost,0);
+  const avgWaste  =rows.reduce((s,r)=>s+r.wastePct,0)/rows.length;
+  const totalAvgOut=rows.reduce((s,r)=>s+r.avgOutput,0);
+  const totalAvgLab=rows.reduce((s,r)=>s+r.avgLabor,0);
+  const avgAvgWaste=rows.reduce((s,r)=>s+r.avgWaste,0)/rows.length;
+  const outPct    =totalAvgOut>0?+(totalOut/totalAvgOut*100).toFixed(0):0;
+  const labPct    =totalAvgLab>0?+(totalLab/totalAvgLab*100).toFixed(0):0;
+  const beat=rows.filter(r=>r.status==="beat").length;
+  const low =rows.filter(r=>r.status==="low").length;
+  const met =rows.filter(r=>r.status==="met").length;
+  const overall=low>beat?"LOW":beat>low?"BEAT":"MET";
+  const oc=low>beat?"r":beat>low?"g":"y";
+  const outArrow =outPct>=105?`<span class="kpi-arrow arrow-up">↑</span>`:outPct<95?`<span class="kpi-arrow arrow-dn">↓</span>`:`<span class="kpi-arrow arrow-eq">→</span>`;
+  const labArrow =labPct<=95?`<span class="kpi-arrow arrow-up">↓</span>`:labPct>110?`<span class="kpi-arrow arrow-dn">↑</span>`:`<span class="kpi-arrow arrow-eq">→</span>`;
+  const wastArrow=avgWaste<avgAvgWaste*0.9?`<span class="kpi-arrow arrow-up">↓</span>`:avgWaste>avgAvgWaste*1.1?`<span class="kpi-arrow arrow-dn">↑</span>`:`<span class="kpi-arrow arrow-eq">→</span>`;
+
+  let prevOut=null,prevLab=null,prevWaste=null,prevBeat=null,prevOutPct=null;
+  if(prevRows&&prevRows.length){
+    prevOut=prevRows.reduce((s,r)=>s+r.output,0);
+    prevLab=prevRows.reduce((s,r)=>s+r.laborCost,0);
+    prevWaste=prevRows.reduce((s,r)=>s+r.wastePct,0)/prevRows.length;
+    prevBeat=prevRows.filter(r=>r.status==="beat").length;
+    const prevAvgOut=prevRows.reduce((s,r)=>s+r.avgOutput,0);
+    prevOutPct=prevAvgOut>0?(prevOut/prevAvgOut*100):null;
+  }
+
+  document.getElementById("kpiStrip").innerHTML=`
+    <div class="kpi b">
+      <div class="kpi-label">Total Output</div>
+      <div class="kpi-val">${fmt(totalOut)}${outArrow}</div>
+      <div class="kpi-sub">Target: <strong>${fmt(totalAvgOut)}</strong></div>
+      ${deltaBadge(totalOut,prevOut)}
+    </div>
+    <div class="kpi ${outPct>=100?"g":outPct>=90?"y":"r"}">
+      <div class="kpi-label">Output % of Target</div>
+      <div class="kpi-val">${outPct}%${outArrow}</div>
+      <div class="kpi-sub">${outPct>=100?"↑ Above":"↓ Below"} average</div>
+      ${prevOutPct!==null?deltaBadge(outPct,prevOutPct):`<span class="kpi-delta"><span class="d-eq">— no data yesterday</span></span>`}
+    </div>
+    <div class="kpi y">
+      <div class="kpi-label">Total Labor Cost</div>
+      <div class="kpi-val">${fmtC(totalLab)}${labArrow}</div>
+      <div class="kpi-sub"><strong>${rows.length}</strong> products · Budget: ${fmtC(totalAvgLab)}</div>
+      ${deltaBadge(totalLab,prevLab,true)}
+    </div>
+    <div class="kpi ${avgWaste<=1.5?"g":"r"}">
+      <div class="kpi-label">Avg Waste %</div>
+      <div class="kpi-val">${fmtP(avgWaste)}${wastArrow}</div>
+      <div class="kpi-sub">Target ≤ 1.50% · ${avgWaste<=1.5?"✓ GOOD":"✗ HIGH"}</div>
+      ${deltaBadge(avgWaste,prevWaste,true)}
+    </div>
+    <div class="kpi ${oc}">
+      <div class="kpi-label">Overall Performance</div>
+      <div class="kpi-val">${overall}</div>
+      <div class="kpi-sub">🟢 ${beat} Beat · 🟡 ${met} Met · 🔴 ${low} Low</div>
+      ${prevBeat!==null?deltaBadge(beat,prevBeat):`<span class="kpi-delta"><span class="d-eq">— no data yesterday</span></span>`}
+    </div>`;
+}
+
+// ── Dept Table ─────────────────────────────────────────────
+function renderDeptTable(rows,prevDeptMap){
+  prevDeptMap=prevDeptMap||{};
+  const depts=byDept(rows);
+  document.getElementById("productCount").textContent=
+    `${rows.length} products · ${depts.length} departments`;
+  if(!depts.length){
+    document.getElementById("deptBody").innerHTML=
+      `<tr class="err-row"><td colspan="14">⚠️ No data found.</td></tr>`;
+    return;
+  }
+  let html="";
+  depts.forEach(d=>{
+    const outPct=d.avgOutput>0?+(d.output/d.avgOutput*100).toFixed(0):100;
+    const labPct=d.avgLabor>0?+(d.labor/d.avgLabor*100).toFixed(0):100;
+    const wa=+(d.wasteSum/d.count).toFixed(3);
+    const wavg=+(d.avgWasteSum/d.count).toFixed(3);
+    const outS=classify(d.output,d.avgOutput);
+    const labS=classify(d.labor,d.avgLabor,true);
+    const wasS=classify(wa,wavg,true);
+    const sc=[outS,labS,wasS];
+    const lowCt=sc.filter(x=>x==="low").length;
+    const beatCt=sc.filter(x=>x==="beat").length;
+    const dStatus=lowCt>=2?"low":beatCt>=2?"beat":"met";
+    const col=DEPT_COLORS[d.dept]||"#3d8bff";
+    const pc=p=>p>=100?"pct-good":p>=85?"pct-warn":"pct-bad";
+    const deptId=d.dept.replace(/[^a-z0-9]/gi,"_");
+    const eff=effScore(outPct,labPct,wa,wavg);
+    const pDept=prevDeptMap[d.dept];
+    let ydayLine="";
+    if(pDept&&pDept.avgOutput>0){
+      const pOutPct=+(pDept.output/pDept.avgOutput*100).toFixed(0);
+      const diff=outPct-pOutPct;
+      const flat=Math.abs(diff)<1;
+      const cls=flat?"d-eq":diff>0?"d-up":"d-dn";
+      const ar=flat?"→":diff>0?"↑":"↓";
+      ydayLine=`<div style="font-size:.62rem;margin-top:2px" class="${cls}">${ar} ${diff>0?"+":""}${diff}pt vs yday</div>`;
+    }
+
+    html+=`<tr class="row-${dStatus}">
+      <td style="text-align:center">${tl(dStatus)}</td>
+      <td class="dept-name dept-toggle" onclick="toggleDept('${deptId}')" id="toggle_${deptId}" style="color:${col}">
+        ${d.dept} <span style="font-size:.72rem;color:var(--muted);font-weight:400">(${d.count})</span>
+      </td>
+      <td class="r">${fmt(d.output)}</td>
+      <td class="r" style="color:var(--muted)">${fmt(d.avgOutput)}</td>
+      <td style="min-width:90px">${progBar(outPct)}<span style="font-size:.65rem;color:var(--muted)">${outPct}%</span>${ydayLine}</td>
+      <td class="r"><span class="${pc(outPct)}">${outPct}%</span> ${arrow(d.output,d.avgOutput)}</td>
+      <td><span class="badge badge-${outS}">${outS==="beat"?"BEATEN":outS==="low"?"LOW":"MET"}</span></td>
+      <td class="r">${fmtC(d.labor)}</td>
+      <td class="r" style="color:var(--muted)">${fmtC(d.avgLabor)}</td>
+      <td class="r"><span class="${labPct<=100?"pct-good":"pct-bad"}">${labPct}%</span> ${arrow(d.labor,d.avgLabor,true)}</td>
+      <td><span class="badge badge-${labS}">${labS==="beat"?"UNDER":"OVER"===labS||labS==="low"?"OVER":"ON"}</span></td>
+      <td class="r"><span class="${wasS==="beat"?"pct-good":wasS==="low"?"pct-bad":"pct-warn"}">${fmtP(wa)}</span> ${arrow(wa,wavg,true)}</td>
+      <td><span class="badge badge-${wasS}">${wasS==="beat"?"GOOD":wasS==="low"?"HIGH":"MET"}</span></td>
+      <td class="r"><span class="eff-score ${effClass(eff)}">${eff}</span></td>
+    </tr>`;
+
+    d.products.forEach(p=>{
+      const pOutPct=p.avgOutput>0?+(p.output/p.avgOutput*100).toFixed(0):null;
+      const pLabPct=p.avgLabor>0?+(p.laborCost/p.avgLabor*100).toFixed(0):null;
+      const pEff=pOutPct&&pLabPct?effScore(pOutPct,pLabPct,p.wastePct,p.avgWaste):null;
+      html+=`<tr class="prod-row row-${p.status}" data-dept="${deptId}" style="display:none">
+        <td></td>
+        <td style="color:var(--muted)">
+          <span style="color:${col};font-weight:800;font-size:.8rem">${p.productNo}</span>
+          — ${p.desc}
+        </td>
+        <td class="r">${fmt(p.output)}</td>
+        <td class="r">${fmt(p.avgOutput)||"—"}</td>
+        <td>${pOutPct!==null?progBar(pOutPct):""}</td>
+        <td class="r">${pOutPct!==null?`<span class="${pOutPct>=100?"pct-good":pOutPct>=85?"pct-warn":"pct-bad"}">${pOutPct}%</span> ${arrow(p.output,p.avgOutput)}`:"—"}</td>
+        <td><span class="badge badge-${p.outS}">${p.outS==="beat"?"BEAT":p.outS==="low"?"LOW":"MET"}</span></td>
+        <td class="r">${fmtC(p.laborCost)}</td>
+        <td class="r">${fmtC(p.avgLabor)||"—"}</td>
+        <td class="r">${pLabPct!==null?`<span class="${pLabPct<=100?"pct-good":"pct-bad"}">${pLabPct}%</span> ${arrow(p.laborCost,p.avgLabor,true)}`:"—"}</td>
+        <td><span class="badge badge-${p.labS}">${p.labS==="beat"?"UNDER":"ON"}</span></td>
+        <td class="r">${fmtP(p.wastePct)} ${arrow(p.wastePct,p.avgWaste,true)}</td>
+        <td><span class="badge badge-${p.wasS}">${p.wasS==="beat"?"GOOD":p.wasS==="low"?"HIGH":"MET"}</span></td>
+        <td class="r">${pEff!==null?`<span class="eff-score ${effClass(pEff)}">${pEff}</span>`:"—"}</td>
+      </tr>`;
+    });
+  });
+  document.getElementById("deptBody").innerHTML=html;
+}
+
+function toggleDept(deptId){
+  const rows=document.querySelectorAll(`tr[data-dept="${deptId}"]`);
+  const tog=document.getElementById(`toggle_${deptId}`);
+  const open=tog.classList.contains("open");
+  rows.forEach(r=>r.style.display=open?"none":"table-row");
+  tog.classList.toggle("open",!open);
+}
+
+// ── Charts ─────────────────────────────────────────────────
+Chart.register(ChartDataLabels);
+const charts={};
+function killCharts(){Object.values(charts).forEach(c=>c?.destroy());}
+const TICK={color:"#6b7fa8",font:{family:"'Barlow Condensed'",size:11}};
+const GRID={color:"rgba(255,255,255,0.05)"};
+
+function renderCharts(rows){
+  killCharts();
+  const depts=byDept(rows);
+  const dl=depts.map(d=>d.dept);
+  const dc=depts.map(d=>DEPT_COLORS[d.dept]||"#3d8bff");
+
+  charts.output=new Chart(document.getElementById("outputChart"),{type:"bar",
+    data:{labels:dl,datasets:[
+      {label:"Actual",data:depts.map(d=>d.output),backgroundColor:dc.map(c=>c+"cc"),borderRadius:5,borderSkipped:false},
+      {label:"Target",data:depts.map(d=>d.avgOutput),backgroundColor:"rgba(255,255,255,0.06)",
+       borderColor:"rgba(255,255,255,0.3)",borderWidth:2,borderRadius:5,borderSkipped:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:"top",align:"end",labels:{color:"#6b7fa8",font:{size:11,family:"'Barlow Condensed'"},boxWidth:10,padding:10}},
+        datalabels:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`}}},
+      scales:{x:{ticks:TICK,grid:{display:false}},y:{ticks:{...TICK,callback:v=>fmt(v/1000,0)+"k"},grid:GRID,border:{dash:[4,4]}}}}
+  });
+
+  charts.waste=new Chart(document.getElementById("wasteChart"),{type:"bar",
+    data:{labels:dl,datasets:[
+      {label:"Actual Waste %",data:depts.map(d=>+(d.wasteSum/d.count).toFixed(3)),backgroundColor:dc.map(c=>c+"cc"),borderRadius:5,borderSkipped:false},
+      {label:"Target",data:depts.map(d=>+(d.avgWasteSum/d.count).toFixed(3)),backgroundColor:"rgba(255,255,255,0.06)",
+       borderColor:"rgba(255,255,255,0.3)",borderWidth:2,borderRadius:5,borderSkipped:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:"top",align:"end",labels:{color:"#6b7fa8",font:{size:11,family:"'Barlow Condensed'"},boxWidth:10,padding:10}},
+        datalabels:{display:true,align:"top",offset:3,color:"#e8edff",font:{family:"'Barlow Condensed'",size:11,weight:"bold"},formatter:v=>fmtP(v)},
+        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmtP(ctx.parsed.y)}`}}},
+      scales:{x:{ticks:TICK,grid:{display:false}},y:{ticks:{...TICK,callback:v=>fmtP(v)},grid:GRID,border:{dash:[4,4]}}}}
+  });
+
+  const beat=rows.filter(r=>r.status==="beat").length;
+  const met =rows.filter(r=>r.status==="met").length;
+  const low =rows.filter(r=>r.status==="low").length;
+  charts.donut=new Chart(document.getElementById("donutChart"),{type:"doughnut",
+    data:{labels:["🟢 BEATEN","🟡 MET","🔴 LOW"],
+      datasets:[{data:[beat,met,low],backgroundColor:["#00d68f","#ffb400","#ff4560"],borderWidth:0,hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:"62%",
+      plugins:{legend:{display:true,position:"right",labels:{color:"#6b7fa8",font:{size:13,family:"'Barlow Condensed'"},boxWidth:14,padding:14,
+        generateLabels:chart=>chart.data.labels.map((l,i)=>({
+          text:`${l}  ${chart.data.datasets[0].data[i]}`,
+          fillStyle:chart.data.datasets[0].backgroundColor[i],hidden:false,index:i}))}},
+        datalabels:{display:true,color:"#fff",font:{family:"'Barlow Condensed'",weight:"bold",size:18},formatter:v=>v>0?v:""}}}
+  });
+}
+
+// ── Spotlight Insights ─────────────────────────────────────
+function renderInsights(rows){
+  if(!rows.length) return;
+  const withT=rows.filter(r=>r.avgOutput>0);
+  const topOut=[...withT].sort((a,b)=>b.output/b.avgOutput-a.output/a.avgOutput)[0]||rows[0];
+  const topWaste=[...rows].sort((a,b)=>b.wastePct-a.wastePct)[0];
+  const lowOut=[...withT].sort((a,b)=>a.output/a.avgOutput-b.output/b.avgOutput)[0]||rows[rows.length-1];
+  const shortDesc=s=>s.length>42?s.slice(0,40)+"…":s;
+
+  document.getElementById("insightsRow").innerHTML=`
+    <div class="insight i-green">
+      <div class="insight-icon">⭐</div>
+      <div>
+        <div class="insight-label">Top Output Performer</div>
+        <div class="insight-val">${fmtP(topOut.output/topOut.avgOutput*100)} of Target</div>
+        <div class="insight-name">${topOut.productNo}</div>
+        <div class="insight-sub">${shortDesc(topOut.desc)} · ${topOut.dept}</div>
+      </div>
+    </div>
+    <div class="insight i-red">
+      <div class="insight-icon">⚠️</div>
+      <div>
+        <div class="insight-label">Highest Waste Item</div>
+        <div class="insight-val">${fmtP(topWaste.wastePct)} Waste</div>
+        <div class="insight-name">${topWaste.productNo}</div>
+        <div class="insight-sub">${shortDesc(topWaste.desc)} · Target: ${fmtP(topWaste.avgWaste)}</div>
+      </div>
+    </div>
+    <div class="insight i-yellow">
+      <div class="insight-icon">📉</div>
+      <div>
+        <div class="insight-label">Needs Attention</div>
+        <div class="insight-val">${fmtP(lowOut.output/lowOut.avgOutput*100)} of Target</div>
+        <div class="insight-name">${lowOut.productNo}</div>
+        <div class="insight-sub">${shortDesc(lowOut.desc)} · ${lowOut.dept}</div>
+      </div>
+    </div>
+    <div class="notes-card">
+      <div class="note-title">📋 Dashboard Notes</div>
+      <ul>
+        <li>🔴🟡🟢 traffic lights = dept status at a glance</li>
+        <li>Progress bars show % of output target reached</li>
+        <li>Eff. score = output + labor + waste composite</li>
+        <li>Click any dept row to expand individual products</li>
+        <li>Auto-syncs every 5 min from Google Sheets</li>
+      </ul>
+    </div>`;
+}
+
+// ── Live Clock ─────────────────────────────────────────────
+function tickClock(){
+  const now=new Date();
+  document.getElementById("liveClock").textContent=
+    now.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  document.getElementById("liveClockDate").textContent=
+    now.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+}
+setInterval(tickClock,1000);
+tickClock();
+
+// ── Main ───────────────────────────────────────────────────
+async function refresh(isFirst=false){
+  try{
+    if(isFirst) document.getElementById("loadingSub").textContent="Fetching DailyData & Thresholds…";
+    const [daily,thresholds]=await Promise.all([fetchCSV(DAILY_CSV),fetchCSV(THRESH_CSV)]);
+    initializeDateSelector(daily);
+    const rows=mergeData(daily,thresholds,selectedDate);
+    const evaluated=evalRows(rows);
+
+    const yesterdayDate=shiftDate(selectedDate,-1);
+    const yRows=mergeData(daily,thresholds,yesterdayDate);
+    const yEvaluated=evalRows(yRows);
+    const prevDeptMap={};
+    byDept(yEvaluated).forEach(d=>{prevDeptMap[d.dept]=d;});
+
+    const now=new Date();
+    document.getElementById("reportDate").textContent= selectedDate || "All Dates";
+    document.getElementById("compareDate").textContent= yEvaluated.length ? yesterdayDate : "no prior data";
+    document.getElementById("lastUpdated").textContent=
+      now.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
+
+    if(evaluated.length===0){
+      document.getElementById("kpiStrip").innerHTML="";
+      document.getElementById("deptBody").innerHTML=
+        `<tr class="err-row"><td colspan="14">⚠️ No rows with Total Output > 0 found, or Product No values don't match Thresholds.</td></tr>`;
+      document.getElementById("insightsRow").innerHTML="";
+    }else{
+      renderAlert(byDept(evaluated));
+      renderKPIs(evaluated,yEvaluated);
+      renderDeptTable(evaluated,prevDeptMap);
+      renderCharts(evaluated);
+      renderInsights(evaluated);
+    }
+    if(isFirst){
+      const ov=document.getElementById("loadingOverlay");
+      ov.classList.add("hidden");
+      setTimeout(()=>ov.remove(),600);
+    }
+  }catch(err){
+    console.error("Dashboard error:",err);
+    document.getElementById("loadingText").textContent="⚠️ Could not load data";
+    document.getElementById("loadingSub").textContent=err.message+" — check F12 console";
+  }
+}
+
+refresh(true);
+setInterval(()=>refresh(false),REFRESH_MS);
+</script>
+</body>
+</html>

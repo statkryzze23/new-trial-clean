@@ -18,12 +18,8 @@
   --font:'Barlow Condensed',sans-serif;
 }
 
-html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;min-height:100vh;overflow-x:hidden;overflow-y:auto;}
-.shell{display:flex;flex-direction:column;padding:10px 16px 24px;gap:8px;min-height:100vh;}
-::-webkit-scrollbar{width:0;height:0}
-.tv-meta{position:fixed;top:6px;right:10px;z-index:50;display:flex;align-items:center;gap:8px;font-size:.62rem;color:var(--muted);opacity:.55;transition:opacity .2s}
-.tv-meta input{background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:5px;padding:2px 6px;font-size:.62rem;font-family:var(--font)}
-.tv-meta:hover{opacity:1}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh;overflow-x:hidden;overflow-y:auto;}
+.shell{display:flex;flex-direction:column;padding:8px 12px 20px;gap:6px;min-height:100vh;}
 
 /* ══ ALERT BANNER ══ */
 .alert-banner{
@@ -44,18 +40,18 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-si
   padding:8px 18px;position:relative;overflow:hidden;gap:10px}
 .hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
   background:linear-gradient(90deg,transparent,var(--green) 40%,var(--blue) 60%,transparent)}
-.logo{font-size:2.6rem;font-weight:900;letter-spacing:4px;line-height:1}
-.logo small{display:block;font-size:.7rem;letter-spacing:7px;color:var(--green);font-weight:700}
+.logo{font-size:2.2rem;font-weight:900;letter-spacing:4px;line-height:1}
+.logo small{display:block;font-size:.65rem;letter-spacing:7px;color:var(--green);font-weight:700}
 .hdr-center{text-align:center}
-.hdr-center h1{font-size:clamp(1.5rem,2.5vw,2.3rem);font-weight:900;letter-spacing:3px;text-transform:uppercase;line-height:1}
-.hdr-date{font-size:.9rem;color:var(--muted);margin-top:4px;letter-spacing:1px}
+.hdr-center h1{font-size:clamp(1.3rem,2.2vw,2rem);font-weight:900;letter-spacing:3px;text-transform:uppercase;line-height:1}
+.hdr-date{font-size:.82rem;color:var(--muted);margin-top:2px;letter-spacing:1px}
 .hdr-date strong{color:var(--green)}
 .hdr-right{display:flex;align-items:center;gap:16px;justify-content:flex-end}
 .clock-block{text-align:center}
-.clock{font-size:2.4rem;font-weight:900;letter-spacing:3px;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
-.clock-date{font-size:.7rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:1px}
-.live-block{text-align:right;font-size:.8rem;color:var(--muted);line-height:1.8}
-.live-block strong{display:block;font-size:.9rem;color:var(--text)}
+.clock{font-size:2rem;font-weight:900;letter-spacing:3px;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
+.clock-date{font-size:.65rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:1px}
+.live-block{text-align:right;font-size:.75rem;color:var(--muted);line-height:1.8}
+.live-block strong{display:block;font-size:.85rem;color:var(--text)}
 .live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:5px;animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
@@ -66,16 +62,14 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-si
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
 .kpi.g::before{background:var(--green)}.kpi.b::before{background:var(--blue)}
 .kpi.y::before{background:var(--yellow)}.kpi.r::before{background:var(--red)}.kpi.p::before{background:var(--purple)}
-.kpi-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted)}
-.kpi-val{font-size:clamp(2.2rem,3.6vw,3.8rem);font-weight:900;line-height:1;letter-spacing:-1px}
+.kpi-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted)}
+.kpi-val{font-size:clamp(1.8rem,3vw,3.2rem);font-weight:900;line-height:1;letter-spacing:-1px}
 .kpi.g .kpi-val{color:var(--green)}.kpi.b .kpi-val{color:var(--blue)}
 .kpi.y .kpi-val{color:var(--yellow)}.kpi.r .kpi-val{color:var(--red)}.kpi.p .kpi-val{color:var(--purple)}
-.kpi-sub{font-size:.78rem;color:var(--muted)}
+.kpi-sub{font-size:.72rem;color:var(--muted)}
 .kpi-sub strong{color:var(--text)}
 .kpi-arrow{font-size:1.4rem;font-weight:900;margin-left:6px;vertical-align:middle}
 .arrow-up{color:var(--green)}.arrow-dn{color:var(--red)}.arrow-eq{color:var(--yellow)}
-.kpi-delta{font-size:.78rem;font-weight:800;letter-spacing:.3px;margin-top:2px;display:flex;align-items:center;gap:4px}
-.d-up{color:var(--green)}.d-dn{color:var(--red)}.d-eq{color:var(--muted)}
 
 /* ══ DEPT TABLE ══ */
 .dept-section{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
@@ -85,13 +79,13 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-si
 .sec-hdr-count{font-size:.7rem;color:var(--blue);font-weight:600;letter-spacing:0}
 .table-scroll{overflow-x:auto;overflow-y:auto;}
 table{width:100%;border-collapse:collapse}
-thead th{background:var(--surface2);padding:8px 10px;font-size:.72rem;font-weight:700;
+thead th{background:var(--surface2);padding:6px 10px;font-size:.68rem;font-weight:700;
   text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:left;
   border-bottom:1px solid var(--border2);white-space:nowrap}
 thead th.r{text-align:right}
-tbody td{padding:8px 10px;font-size:1rem;border-bottom:1px solid var(--border);color:var(--text)}
+tbody td{padding:6px 10px;font-size:.9rem;border-bottom:1px solid var(--border);color:var(--text)}
 tbody td.r{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
-tbody td.dept-name{font-weight:900;font-size:1.2rem;letter-spacing:.5px}
+tbody td.dept-name{font-weight:900;font-size:1.05rem;letter-spacing:.5px}
 tbody tr:last-child td{border-bottom:none}
 
 tbody tr.row-beat td{background:rgba(0,214,143,0.05)}
@@ -142,7 +136,7 @@ tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
   padding:10px 12px;display:flex;flex-direction:column;}
 .chart-card h3{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;
   color:var(--muted);margin-bottom:6px;flex-shrink:0}
-.chart-card .chart-wrap{position:relative;height:240px;width:100%;}
+.chart-card .chart-wrap{position:relative;height:220px;width:100%;}
 .chart-card canvas{display:block;width:100%!important;height:100%!important;}
 
 /* ══ SPOTLIGHT INSIGHTS ══ */
@@ -154,11 +148,11 @@ tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
 .insight.i-red::before{background:var(--red)}
 .insight.i-yellow::before{background:var(--yellow)}
 .insight.i-blue::before{background:var(--blue)}
-.insight-icon{font-size:2.1rem;flex-shrink:0}
-.insight-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted)}
-.insight-val{font-size:1.25rem;font-weight:900;line-height:1.1}
-.insight-name{font-size:.9rem;color:var(--text);font-weight:600;margin-top:1px}
-.insight-sub{font-size:.78rem;color:var(--muted);margin-top:1px}
+.insight-icon{font-size:1.8rem;flex-shrink:0}
+.insight-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted)}
+.insight-val{font-size:1.1rem;font-weight:900;line-height:1.1}
+.insight-name{font-size:.82rem;color:var(--text);font-weight:600;margin-top:1px}
+.insight-sub{font-size:.72rem;color:var(--muted);margin-top:1px}
 .insight.i-green .insight-val{color:var(--green)}
 .insight.i-red .insight-val{color:var(--red)}
 .insight.i-yellow .insight-val{color:var(--yellow)}
@@ -205,7 +199,11 @@ tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
     <div class="logo">IMO'S<small>PIZZA</small></div>
     <div class="hdr-center">
       <h1>Daily Production Dashboard</h1>
-      <div class="hdr-date">Results for: <strong id="reportDate">—</strong> &nbsp;·&nbsp; vs. <strong id="compareDate" style="color:var(--blue)">yesterday</strong></div>
+      <div class="hdr-date">Results for: <strong id="reportDate">—</strong></div>
+      <div style="margin-top:8px">
+        <input type="date" id="dateSelector"
+        style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:4px 8px;">
+      </div>
     </div>
     <div class="hdr-right">
       <div class="clock-block">
@@ -219,12 +217,6 @@ tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
       </div>
     </div>
   </header>
-
-  <!-- tucked-away manual date override, not for TV viewing but available if needed -->
-  <div class="tv-meta">
-    <span>Override date:</span>
-    <input type="date" id="dateSelector">
-  </div>
 
   <!-- KPI STRIP -->
   <div class="kpi-strip" id="kpiStrip"></div>
@@ -401,7 +393,7 @@ async function fetchCSV(url){
   return new Promise(r=>Papa.parse(text,{header:true,skipEmptyLines:true,complete:d=>r(d.data)}));
 }
 
-function mergeData(daily,thresholds,dateStr){
+function mergeData(daily,thresholds){
   const thMap=new Map();
   thresholds.forEach(t=>{
     const key=(t["Product No"]||"").trim();
@@ -413,7 +405,7 @@ function mergeData(daily,thresholds,dateStr){
     });
   });
   const rows=[];
-  daily.filter(r=>!dateStr || normalizeDate(r["Date"])===dateStr).forEach(r=>{
+  daily.filter(r=>!selectedDate || normalizeDate(r["Date"])===selectedDate).forEach(r=>{
     const pno=(r["Product No"]||"").trim();
     if(!pno)return;
     const out=pn(r["Total Output"]);
@@ -430,29 +422,6 @@ function mergeData(daily,thresholds,dateStr){
     });
   });
   return rows;
-}
-
-function shiftDate(dateStr,days){
-  if(!dateStr) return "";
-  const d=new Date(dateStr+"T00:00:00");
-  if(isNaN(d)) return "";
-  d.setDate(d.getDate()+days);
-  return d.toISOString().split("T")[0];
-}
-
-function pctDelta(curr,prev){
-  if(!prev) return null;
-  return ((curr-prev)/prev)*100;
-}
-
-function deltaBadge(curr,prev,lowerBetter=false,decimals=1){
-  if(prev===null||prev===undefined||prev===0) return `<span class="kpi-delta"><span class="d-eq">— no data yesterday</span></span>`;
-  const d=pctDelta(curr,prev);
-  const good=lowerBetter?d<0:d>0;
-  const flat=Math.abs(d)<1;
-  const cls=flat?"d-eq":good?"d-up":"d-dn";
-  const ar=flat?"→":d>0?"↑":"↓";
-  return `<span class="kpi-delta"><span class="${cls}">${ar} ${d>0?"+":""}${d.toFixed(decimals)}%</span> vs yesterday</span>`;
 }
 
 // ── Alert Banner ───────────────────────────────────────────
@@ -485,7 +454,7 @@ function renderAlert(depts){
 }
 
 // ── KPIs ───────────────────────────────────────────────────
-function renderKPIs(rows,prevRows){
+function renderKPIs(rows){
   const totalOut  =rows.reduce((s,r)=>s+r.output,0);
   const totalLab  =rows.reduce((s,r)=>s+r.laborCost,0);
   const avgWaste  =rows.reduce((s,r)=>s+r.wastePct,0)/rows.length;
@@ -502,53 +471,36 @@ function renderKPIs(rows,prevRows){
   const outArrow =outPct>=105?`<span class="kpi-arrow arrow-up">↑</span>`:outPct<95?`<span class="kpi-arrow arrow-dn">↓</span>`:`<span class="kpi-arrow arrow-eq">→</span>`;
   const labArrow =labPct<=95?`<span class="kpi-arrow arrow-up">↓</span>`:labPct>110?`<span class="kpi-arrow arrow-dn">↑</span>`:`<span class="kpi-arrow arrow-eq">→</span>`;
   const wastArrow=avgWaste<avgAvgWaste*0.9?`<span class="kpi-arrow arrow-up">↓</span>`:avgWaste>avgAvgWaste*1.1?`<span class="kpi-arrow arrow-dn">↑</span>`:`<span class="kpi-arrow arrow-eq">→</span>`;
-
-  let prevOut=null,prevLab=null,prevWaste=null,prevBeat=null,prevOutPct=null;
-  if(prevRows&&prevRows.length){
-    prevOut=prevRows.reduce((s,r)=>s+r.output,0);
-    prevLab=prevRows.reduce((s,r)=>s+r.laborCost,0);
-    prevWaste=prevRows.reduce((s,r)=>s+r.wastePct,0)/prevRows.length;
-    prevBeat=prevRows.filter(r=>r.status==="beat").length;
-    const prevAvgOut=prevRows.reduce((s,r)=>s+r.avgOutput,0);
-    prevOutPct=prevAvgOut>0?(prevOut/prevAvgOut*100):null;
-  }
-
   document.getElementById("kpiStrip").innerHTML=`
     <div class="kpi b">
       <div class="kpi-label">Total Output</div>
       <div class="kpi-val">${fmt(totalOut)}${outArrow}</div>
       <div class="kpi-sub">Target: <strong>${fmt(totalAvgOut)}</strong></div>
-      ${deltaBadge(totalOut,prevOut)}
     </div>
     <div class="kpi ${outPct>=100?"g":outPct>=90?"y":"r"}">
       <div class="kpi-label">Output % of Target</div>
       <div class="kpi-val">${outPct}%${outArrow}</div>
       <div class="kpi-sub">${outPct>=100?"↑ Above":"↓ Below"} average</div>
-      ${prevOutPct!==null?deltaBadge(outPct,prevOutPct):`<span class="kpi-delta"><span class="d-eq">— no data yesterday</span></span>`}
     </div>
     <div class="kpi y">
       <div class="kpi-label">Total Labor Cost</div>
       <div class="kpi-val">${fmtC(totalLab)}${labArrow}</div>
       <div class="kpi-sub"><strong>${rows.length}</strong> products · Budget: ${fmtC(totalAvgLab)}</div>
-      ${deltaBadge(totalLab,prevLab,true)}
     </div>
     <div class="kpi ${avgWaste<=1.5?"g":"r"}">
       <div class="kpi-label">Avg Waste %</div>
       <div class="kpi-val">${fmtP(avgWaste)}${wastArrow}</div>
       <div class="kpi-sub">Target ≤ 1.50% · ${avgWaste<=1.5?"✓ GOOD":"✗ HIGH"}</div>
-      ${deltaBadge(avgWaste,prevWaste,true)}
     </div>
     <div class="kpi ${oc}">
       <div class="kpi-label">Overall Performance</div>
       <div class="kpi-val">${overall}</div>
       <div class="kpi-sub">🟢 ${beat} Beat · 🟡 ${met} Met · 🔴 ${low} Low</div>
-      ${prevBeat!==null?deltaBadge(beat,prevBeat):`<span class="kpi-delta"><span class="d-eq">— no data yesterday</span></span>`}
     </div>`;
 }
 
 // ── Dept Table ─────────────────────────────────────────────
-function renderDeptTable(rows,prevDeptMap){
-  prevDeptMap=prevDeptMap||{};
+function renderDeptTable(rows){
   const depts=byDept(rows);
   document.getElementById("productCount").textContent=
     `${rows.length} products · ${depts.length} departments`;
@@ -574,16 +526,6 @@ function renderDeptTable(rows,prevDeptMap){
     const pc=p=>p>=100?"pct-good":p>=85?"pct-warn":"pct-bad";
     const deptId=d.dept.replace(/[^a-z0-9]/gi,"_");
     const eff=effScore(outPct,labPct,wa,wavg);
-    const pDept=prevDeptMap[d.dept];
-    let ydayLine="";
-    if(pDept&&pDept.avgOutput>0){
-      const pOutPct=+(pDept.output/pDept.avgOutput*100).toFixed(0);
-      const diff=outPct-pOutPct;
-      const flat=Math.abs(diff)<1;
-      const cls=flat?"d-eq":diff>0?"d-up":"d-dn";
-      const ar=flat?"→":diff>0?"↑":"↓";
-      ydayLine=`<div style="font-size:.62rem;margin-top:2px" class="${cls}">${ar} ${diff>0?"+":""}${diff}pt vs yday</div>`;
-    }
 
     html+=`<tr class="row-${dStatus}">
       <td style="text-align:center">${tl(dStatus)}</td>
@@ -592,7 +534,7 @@ function renderDeptTable(rows,prevDeptMap){
       </td>
       <td class="r">${fmt(d.output)}</td>
       <td class="r" style="color:var(--muted)">${fmt(d.avgOutput)}</td>
-      <td style="min-width:90px">${progBar(outPct)}<span style="font-size:.65rem;color:var(--muted)">${outPct}%</span>${ydayLine}</td>
+      <td style="min-width:90px">${progBar(outPct)}<span style="font-size:.65rem;color:var(--muted)">${outPct}%</span></td>
       <td class="r"><span class="${pc(outPct)}">${outPct}%</span> ${arrow(d.output,d.avgOutput)}</td>
       <td><span class="badge badge-${outS}">${outS==="beat"?"BEATEN":outS==="low"?"LOW":"MET"}</span></td>
       <td class="r">${fmtC(d.labor)}</td>
@@ -759,18 +701,11 @@ async function refresh(isFirst=false){
     if(isFirst) document.getElementById("loadingSub").textContent="Fetching DailyData & Thresholds…";
     const [daily,thresholds]=await Promise.all([fetchCSV(DAILY_CSV),fetchCSV(THRESH_CSV)]);
     initializeDateSelector(daily);
-    const rows=mergeData(daily,thresholds,selectedDate);
+    const rows=mergeData(daily,thresholds);
     const evaluated=evalRows(rows);
-
-    const yesterdayDate=shiftDate(selectedDate,-1);
-    const yRows=mergeData(daily,thresholds,yesterdayDate);
-    const yEvaluated=evalRows(yRows);
-    const prevDeptMap={};
-    byDept(yEvaluated).forEach(d=>{prevDeptMap[d.dept]=d;});
 
     const now=new Date();
     document.getElementById("reportDate").textContent= selectedDate || "All Dates";
-    document.getElementById("compareDate").textContent= yEvaluated.length ? yesterdayDate : "no prior data";
     document.getElementById("lastUpdated").textContent=
       now.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
 
@@ -781,8 +716,8 @@ async function refresh(isFirst=false){
       document.getElementById("insightsRow").innerHTML="";
     }else{
       renderAlert(byDept(evaluated));
-      renderKPIs(evaluated,yEvaluated);
-      renderDeptTable(evaluated,prevDeptMap);
+      renderKPIs(evaluated);
+      renderDeptTable(evaluated);
       renderCharts(evaluated);
       renderInsights(evaluated);
     }

@@ -687,7 +687,7 @@ async function downloadSnapshot() {
     const dashboard = document.querySelector(".shell");
 
     const canvas = await html2canvas(dashboard, {
-      scale: 2,
+      scale: 1,
       useCORS: true,
       backgroundColor: "#0a0f1e",
       width: dashboard.scrollWidth,
@@ -723,104 +723,6 @@ async function downloadPDF() {
 
     const canvas = await html2canvas(dashboard, {
       scale: 1,
-      useCORS: true,
-      backgroundColor: "#0a0f1e",
-      width: dashboard.scrollWidth,
-      height: dashboard.scrollHeight,
-      windowWidth: dashboard.scrollWidth,
-      windowHeight: dashboard.scrollHeight
-    });
-
-    const imgData = canvas.toDataURL("image/png");
-
-    const { jsPDF } = window.jspdf;
-
-    const pdf = new jsPDF({
-      orientation: "landscape",
-      unit: "mm",
-      format: "a4"
-    });
-
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
-
-    const ratio = Math.min(
-      pageWidth / imgWidth,
-      pageHeight / imgHeight
-    );
-
-    const pdfWidth = imgWidth * ratio;
-    const pdfHeight = imgHeight * ratio;
-
-    const x = (pageWidth - pdfWidth) / 2;
-    const y = (pageHeight - pdfHeight) / 2;
-
-    pdf.addImage(
-      imgData,
-      "PNG",
-      x,
-      y,
-      pdfWidth,
-      pdfHeight
-    );
-
-    pdf.save(
-      `ProductionDashboard_${new Date().toISOString().slice(0,10)}.pdf`
-    );
-
-  } catch (err) {
-    console.error("PDF Error:", err);
-    alert("Unable to generate PDF.");
-  }
-}
-  // ================================
-// DOWNLOAD PNG SNAPSHOT
-// ================================
-async function downloadSnapshot() {
-  try {
-
-    const dashboard = document.querySelector(".shell");
-
-    const canvas = await html2canvas(dashboard, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#0a0f1e",
-      width: dashboard.scrollWidth,
-      height: dashboard.scrollHeight,
-      windowWidth: dashboard.scrollWidth,
-      windowHeight: dashboard.scrollHeight
-    });
-
-    const link = document.createElement("a");
-
-    link.download =
-      `ProductionDashboard_${new Date().toISOString().slice(0,10)}.png`;
-
-    link.href = canvas.toDataURL("image/png");
-
-    link.click();
-
-  } catch (err) {
-    console.error("Snapshot Error:", err);
-    alert("Unable to generate snapshot.");
-  }
-}
-
-
-// ================================
-// DOWNLOAD PDF
-// ================================
-async function downloadPDF() {
-
-  try {
-
-    const dashboard = document.querySelector(".shell");
-
-    const canvas = await html2canvas(dashboard, {
-      scale: 2,
       useCORS: true,
       backgroundColor: "#0a0f1e",
       width: dashboard.scrollWidth,

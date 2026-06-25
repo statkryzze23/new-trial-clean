@@ -614,8 +614,10 @@ function renderCharts(rows){
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:true,position:"top",align:"end",labels:{color:"#6b7fa8",font:{size:11,family:"'Barlow Condensed'"},boxWidth:10,padding:10}},
-      datalabels:{display:true,color:"#FFFFFF",anchor:"end",align:"top",offset:4,font:{size:12,weight:"bold",family:"'Barlow Condensed'"},formatter:(v)=>fmt(v)
-});
+        datalabels:{display:true,align:"top",offset:3,color:"#e8edff",font:{family:"'Barlow Condensed'",size:11,weight:"bold"},formatter:v=>fmtP(v)},
+        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmtP(ctx.parsed.y)}`}}},
+      scales:{x:{ticks:TICK,grid:{display:false}},y:{ticks:{...TICK,callback:v=>fmtP(v)},grid:GRID,border:{dash:[4,4]}}}}
+  });
 
   const beat=rows.filter(r=>r.status==="beat").length;
   const met =rows.filter(r=>r.status==="met").length;

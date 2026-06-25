@@ -739,8 +739,16 @@ async function downloadPDF() {
     scale: 2,
     backgroundColor: "#0a0f1e"
   });
+  
 
   const imgData = canvas.toDataURL("image/png");
+  const canvas = await html2canvas(document.querySelector(".shell"),{
+    scale:2,
+    width:1920,
+    height:1080,
+    windowWidth:1920,
+    windowHeight:1080
+});
 
   const { jsPDF } = window.jspdf;
 

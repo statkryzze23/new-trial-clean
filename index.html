@@ -718,6 +718,47 @@ async function refresh(isFirst=false){
 
 refresh(true);
 setInterval(()=>refresh(false),REFRESH_MS);
+ async function downloadSnapshot() {
+  const dashboard = document.querySelector(".shell");
+
+  const canvas = await html2canvas(dashboard, {
+    scale: 2,
+    backgroundColor: "#0a0f1e"
+  });
+
+  const link = document.createElement("a");
+  link.download = `ProductionDashboard_${new Date().toISOString().slice(0,10)}.png`;
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+
+async function downloadPDF() {
+  const dashboard = document.querySelector(".shell");
+
+  const canvas = await html2canvas(dashboard, {
+    scale: 2,
+    backgroundColor: "#0a0f1e"
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+
+  const { jsPDF } = window.jspdf;
+
+  const pdf = new jsPDF({
+    orientation: "landscape",
+    unit: "mm",
+    format: "a4"
+  });
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+
+  pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
+
+  pdf.save(
+    `ProductionDashboard_${new Date().toISOString().slice(0,10)}.pdf`
+  );
+} 
 </script>
 </body>
 </html>

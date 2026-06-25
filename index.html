@@ -678,104 +678,95 @@ function renderInsights(rows){
     </div>`;
 }
 
-// ================================
-// DOWNLOAD PNG SNAPSHOT
-// ================================
-async function downloadSnapshot() {
-  try {
+// ── Main ───────────────────────────────────────────────────
+async function refresh(isFirst=false){
+  try{
+    if(isFirst) document.getElementById("loadingSub").textContent="Fetching DailyData & Thresholds…";
+    const [daily,thresholds]=await Promise.all([fetchCSV(DAILY_CSV),fetchCSV(THRESH_CSV)]);
+    initializeDateSelector(daily);
+    const rows=mergeData(daily,thresholds);
+    const evaluated=evalRows(rows);
 
-    const dashboard = document.querySelector(".shell");
+    const now=new Date();
+    document.getElementById("reportDate").textContent= selectedDate || "All Dates";
+    document.getElementById("lastUpdated").textContent=
+      now.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
 
-    const canvas = await html2canvas(dashboard, {
-      scale: 1,
-      useCORS: true,
-      backgroundColor: "#0a0f1e",
-      width: dashboard.scrollWidth,
-      height: dashboard.scrollHeight,
-      windowWidth: dashboard.scrollWidth,
-      windowHeight: dashboard.scrollHeight
-    });
-
-    const link = document.createElement("a");
-
-    link.download =
-      `ProductionDashboard_${new Date().toISOString().slice(0,10)}.png`;
-
-    link.href = canvas.toDataURL("image/png");
-
-    link.click();
-
-  } catch (err) {
-    console.error("Snapshot Error:", err);
-    alert("Unable to generate snapshot.");
+    if(evaluated.length===0){
+      document.getElementById("kpiStrip").innerHTML="";
+      document.getElementById("deptBody").innerHTML=
+        `<tr class="err-row"><td colspan="14">⚠️ No rows with Total Output > 0 found, or Product No values don't match Thresholds.</td></tr>`;
+      document.getElementById("insightsRow").innerHTML="";
+    }else{
+      renderAlert(byDept(evaluated));
+      renderKPIs(evaluated);
+      renderDeptTable(evaluated);
+      renderCharts(evaluated);
+      renderInsights(evaluated);
+    }
+    if(isFirst){
+      const ov=document.getElementById("loadingOverlay");
+      ov.classList.add("hidden");
+      setTimeout(()=>ov.remove(),600);
+    }
+  }catch(err){
+    console.error("Dashboard error:",err);
+    document.getElementById("loadingText").textContent="⚠️ Could not load data";
+    document.getElementById("loadingSub").textContent=err.message+" — check F12 console";
   }
 }
 
+refresh(true);
+setInterval(()=>refresh(false),REFRESH_MS);
+ async function downloadSnapshot() {
+  const dashboard = document.querySelector(".shell");
 
-// ================================
-// DOWNLOAD PDF
-// ================================
+  const canvas = await html2canvas(dashboard, {
+    scale: 2,
+    backgroundColor: "#0a0f1e"
+  });
+
+  const link = document.createElement("a");
+  link.download = `ProductionDashboard_${new Date().toISOString().slice(0,10)}.png`;
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+
 async function downloadPDF() {
+  const dashboard = document.querySelector(".shell");
 
-  try {
+  const canvas = await html2canvas(dashboard, {
+    scale: 2,
+    backgroundColor: "#0a0f1e"
+  });
+  
 
-    const dashboard = document.querySelector(".shell");
+  const imgData = canvas.toDataURL("image/png");
+  const canvas = await html2canvas(document.querySelector(".shell"),{
+    scale:2,
+    width:1920,
+    height:1080,
+    windowWidth:1920,
+    windowHeight:1080
+});
 
-    const canvas = await html2canvas(dashboard, {
-      scale: 1,
-      useCORS: true,
-      backgroundColor: "#0a0f1e",
-      width: dashboard.scrollWidth,
-      height: dashboard.scrollHeight,
-      windowWidth: dashboard.scrollWidth,
-      windowHeight: dashboard.scrollHeight
-    });
+  const { jsPDF } = window.jspdf;
 
-    const imgData = canvas.toDataURL("image/png");
+  const pdf = new jsPDF({
+    orientation: "landscape",
+    unit: "mm",
+    format: "a4"
+  });
 
-    const { jsPDF } = window.jspdf;
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
 
-    const pdf = new jsPDF({
-      orientation: "landscape",
-      unit: "mm",
-      format: "a4"
-    });
+  pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
-
-    const ratio = Math.min(
-      pageWidth / imgWidth,
-      pageHeight / imgHeight
-    );
-
-    const pdfWidth = imgWidth * ratio;
-    const pdfHeight = imgHeight * ratio;
-
-    const x = (pageWidth - pdfWidth) / 2;
-    const y = (pageHeight - pdfHeight) / 2;
-
-    pdf.addImage(
-      imgData,
-      "PNG",
-      x,
-      y,
-      pdfWidth,
-      pdfHeight
-    );
-
-    pdf.save(
-      `ProductionDashboard_${new Date().toISOString().slice(0,10)}.pdf`
-    );
-
-  } catch (err) {
-    console.error("PDF Error:", err);
-    alert("Unable to generate PDF.");
-  }
-}
+  pdf.save(
+    `ProductionDashboard_${new Date().toISOString().slice(0,10)}.pdf`
+  );
+} 
 </script>
 </body>
 </html>

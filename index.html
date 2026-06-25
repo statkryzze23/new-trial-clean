@@ -618,7 +618,7 @@ charts.output = new Chart(document.getElementById("outputChart"),{
       }
     ]
   }
-});
+}),
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:true,position:"top",align:"end",labels:{color:"#6b7fa8",font:{size:11,family:"'Barlow Condensed'"},boxWidth:10,padding:10}},
         datalabels:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`}}},

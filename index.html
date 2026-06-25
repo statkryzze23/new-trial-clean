@@ -598,8 +598,8 @@ function renderCharts(rows){
   charts.output=new Chart(document.getElementById("outputChart"),{type:"bar",
     data:{labels:dl,datasets:[
       {label:"Actual",data:depts.map(d=>d.output),backgroundColor:dc.map(c=>c+"cc"),borderRadius:5,borderSkipped:false},
-      {label:"Target",data:depts.map(d=>d.avgOutput),backgroundColor:"rgba(255,255,255,0.06)",
-       borderColor:"rgba(255,255,255,0.3)",borderWidth:2,borderRadius:5,borderSkipped:false}
+      {label:"Target",data:depts.map(d=>d.avgOutput),backgroundColor:"rgba(255,215,0,0.65)",
+       borderColor:"#FFD700",borderWidth:3,borderRadius:5,borderSkipped:false}
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:true,position:"top",align:"end",labels:{color:"#6b7fa8",font:{size:11,family:"'Barlow Condensed'"},boxWidth:10,padding:10}},

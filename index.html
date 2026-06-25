@@ -725,17 +725,28 @@ async function refresh(isFirst=false){
 
 refresh(true);
 setInterval(()=>refresh(false),REFRESH_MS);
-  async function downloadSnapshot() {
+ async function downloadSnapshot() {
   const dashboard = document.querySelector(".shell");
 
   const canvas = await html2canvas(dashboard, {
     scale: 2,
-    backgroundColor: "#0a0f1e"
+    useCORS: true,
+    backgroundColor: "#0a0f1e",
+
+    width: 1920,
+    height: 1080,
+
+    windowWidth: 1920,
+    windowHeight: 1080
   });
 
   const link = document.createElement("a");
-  link.download = `ProductionDashboard_${new Date().toISOString().slice(0,10)}.png`;
+
+  link.download =
+    `ProductionDashboard_${new Date().toISOString().slice(0,10)}.png`;
+
   link.href = canvas.toDataURL("image/png");
+
   link.click();
 }
 

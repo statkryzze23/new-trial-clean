@@ -18,9 +18,8 @@
   --font:'Barlow Condensed',sans-serif;
 }
 
-html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;min-height:100vh;overflow-x:hidden;overflow-y:auto;}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh;overflow-x:hidden;overflow-y:auto;}
 .shell{display:flex;flex-direction:column;padding:8px 12px 20px;gap:6px;min-height:100vh;}
-.shell{width:100%;max-width:none;}
 
 /* ══ ALERT BANNER ══ */
 .alert-banner{
@@ -48,6 +47,13 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-si
 .hdr-date{font-size:.82rem;color:var(--muted);margin-top:2px;letter-spacing:1px}
 .hdr-date strong{color:var(--green)}
 .hdr-right{display:flex;align-items:center;gap:16px;justify-content:flex-end}
+.clock-block{text-align:center}
+.clock{font-size:2rem;font-weight:900;letter-spacing:3px;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
+.clock-date{font-size:.65rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:1px}
+.live-block{text-align:right;font-size:.75rem;color:var(--muted);line-height:1.8}
+.live-block strong{display:block;font-size:.85rem;color:var(--text)}
+.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:5px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* ══ KPI STRIP ══ */
 .kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
@@ -168,6 +174,8 @@ tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
 .loading-sub{margin-top:6px;font-size:.75rem;color:var(--muted);opacity:.6;letter-spacing:1px}
 .err-row td{color:var(--yellow)!important;text-align:center;padding:18px!important;font-size:.85rem}
 </style>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -189,6 +197,7 @@ tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
   </div>
 
   <!-- HEADER -->
+  
   <header class="hdr">
     <div class="logo">IMO'S<small>PIZZA</small></div>
     <div class="hdr-center">
@@ -204,6 +213,10 @@ tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
         <div class="clock" id="liveClock">—</div>
         <div class="clock-date" id="liveClockDate">—</div>
       </div>
+      <div style="display:flex;gap:10px;">
+  <button onclick="downloadSnapshot()">📸 Snapshot</button>
+  <button onclick="downloadPDF()">📄 PDF</button>
+</div>
       <div class="live-block">
         <span class="live-dot"></span>LIVE
         <strong id="lastUpdated">—</strong>
@@ -678,6 +691,17 @@ function renderInsights(rows){
     </div>`;
 }
 
+// ── Live Clock ─────────────────────────────────────────────
+function tickClock(){
+  const now=new Date();
+  document.getElementById("liveClock").textContent=
+    now.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  document.getElementById("liveClockDate").textContent=
+    now.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+}
+setInterval(tickClock,1000);
+tickClock();
+
 // ── Main ───────────────────────────────────────────────────
 async function refresh(isFirst=false){
   try{
@@ -718,7 +742,7 @@ async function refresh(isFirst=false){
 
 refresh(true);
 setInterval(()=>refresh(false),REFRESH_MS);
- async function downloadSnapshot() {
+  async function downloadSnapshot() {
   const dashboard = document.querySelector(".shell");
 
   const canvas = await html2canvas(dashboard, {
@@ -739,16 +763,8 @@ async function downloadPDF() {
     scale: 2,
     backgroundColor: "#0a0f1e"
   });
-  
 
   const imgData = canvas.toDataURL("image/png");
-  const canvas = await html2canvas(document.querySelector(".shell"),{
-    scale:2,
-    width:1920,
-    height:1080,
-    windowWidth:1920,
-    windowHeight:1080
-});
 
   const { jsPDF } = window.jspdf;
 
@@ -766,7 +782,7 @@ async function downloadPDF() {
   pdf.save(
     `ProductionDashboard_${new Date().toISOString().slice(0,10)}.pdf`
   );
-} 
+}
 </script>
 </body>
 </html>

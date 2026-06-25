@@ -47,13 +47,6 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-si
 .hdr-date{font-size:.82rem;color:var(--muted);margin-top:2px;letter-spacing:1px}
 .hdr-date strong{color:var(--green)}
 .hdr-right{display:flex;align-items:center;gap:16px;justify-content:flex-end}
-.clock-block{text-align:center}
-.clock{font-size:2rem;font-weight:900;letter-spacing:3px;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
-.clock-date{font-size:.65rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:1px}
-.live-block{text-align:right;font-size:.75rem;color:var(--muted);line-height:1.8}
-.live-block strong{display:block;font-size:.85rem;color:var(--text)}
-.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:5px;animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* ══ KPI STRIP ══ */
 .kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
@@ -602,12 +595,30 @@ function renderCharts(rows){
   const dl=depts.map(d=>d.dept);
   const dc=depts.map(d=>DEPT_COLORS[d.dept]||"#3d8bff");
 
-  charts.output=new Chart(document.getElementById("outputChart"),{type:"bar",
-    data:{labels:dl,datasets:[
-      {label:"Actual",data:depts.map(d=>d.output),backgroundColor:dc.map(c=>c+"cc"),borderRadius:5,borderSkipped:false},
-      {label:"Target",data:depts.map(d=>d.avgOutput),backgroundColor:"rgba(255,255,255,0.06)",
-       borderColor:"rgba(255,255,255,0.3)",borderWidth:2,borderRadius:5,borderSkipped:false}
-    ]},
+charts.output = new Chart(document.getElementById("outputChart"),{
+  data:{
+    labels:dl,
+    datasets:[
+      {
+        type:"bar",
+        label:"Actual",
+        data:depts.map(d=>d.output),
+        backgroundColor:dc.map(c=>c+"cc")
+      },
+      {
+        type:"line",
+        label:"Target",
+        data:depts.map(d=>d.avgOutput),
+        borderColor:"#FFD700",
+        backgroundColor:"#FFD700",
+        borderWidth:4,
+        pointRadius:5,
+        pointBackgroundColor:"#FFD700",
+        tension:0
+      }
+    ]
+  }
+});
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:true,position:"top",align:"end",labels:{color:"#6b7fa8",font:{size:11,family:"'Barlow Condensed'"},boxWidth:10,padding:10}},
         datalabels:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`}}},
@@ -690,17 +701,6 @@ function renderInsights(rows){
       </ul>
     </div>`;
 }
-
-// ── Live Clock ─────────────────────────────────────────────
-function tickClock(){
-  const now=new Date();
-  document.getElementById("liveClock").textContent=
-    now.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-  document.getElementById("liveClockDate").textContent=
-    now.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
-}
-setInterval(tickClock,1000);
-tickClock();
 
 // ── Main ───────────────────────────────────────────────────
 async function refresh(isFirst=false){

@@ -725,7 +725,7 @@ async function refresh(isFirst=false){
 
 refresh(true);
 setInterval(()=>refresh(false),REFRESH_MS);
- async function downloadSnapshot() {
+async function downloadSnapshot() {
   const dashboard = document.querySelector(".shell");
 
   const canvas = await html2canvas(dashboard, {
@@ -733,11 +733,11 @@ setInterval(()=>refresh(false),REFRESH_MS);
     useCORS: true,
     backgroundColor: "#0a0f1e",
 
-    width: 1920,
-    height: 1080,
+    width: dashboard.scrollWidth,
+    height: dashboard.scrollHeight,
 
-    windowWidth: 1920,
-    windowHeight: 1080
+    windowWidth: dashboard.scrollWidth,
+    windowHeight: dashboard.scrollHeight
   });
 
   const link = document.createElement("a");

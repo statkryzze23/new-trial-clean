@@ -678,17 +678,6 @@ function renderInsights(rows){
     </div>`;
 }
 
-// ── Live Clock ─────────────────────────────────────────────
-function tickClock(){
-  const now=new Date();
-  document.getElementById("liveClock").textContent=
-    now.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-  document.getElementById("liveClockDate").textContent=
-    now.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
-}
-setInterval(tickClock,1000);
-tickClock();
-
 // ── Main ───────────────────────────────────────────────────
 async function refresh(isFirst=false){
   try{

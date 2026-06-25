@@ -594,31 +594,13 @@ function renderCharts(rows){
   const depts=byDept(rows);
   const dl=depts.map(d=>d.dept);
   const dc=depts.map(d=>DEPT_COLORS[d.dept]||"#3d8bff");
-
-charts.output = new Chart(document.getElementById("outputChart"),{
-  data:{
-    labels:dl,
-    datasets:[
-      {
-        type:"bar",
-        label:"Actual",
-        data:depts.map(d=>d.output),
-        backgroundColor:dc.map(c=>c+"cc")
-      },
-      {
-        type:"line",
-        label:"Target",
-        data:depts.map(d=>d.avgOutput),
-        borderColor:"#FFD700",
-        backgroundColor:"#FFD700",
-        borderWidth:4,
-        pointRadius:5,
-        pointBackgroundColor:"#FFD700",
-        tension:0
-      }
-    ]
-  }
-}),
+  
+  charts.output=new Chart(document.getElementById("outputChart"),{type:"bar",
+    data:{labels:dl,datasets:[
+      {label:"Actual",data:depts.map(d=>d.output),backgroundColor:dc.map(c=>c+"cc"),borderRadius:5,borderSkipped:false},
+      {label:"Target",data:depts.map(d=>d.avgOutput),backgroundColor:"rgba(255,255,255,0.06)",
+       borderColor:"rgba(255,255,255,0.3)",borderWidth:2,borderRadius:5,borderSkipped:false}
+    ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:true,position:"top",align:"end",labels:{color:"#6b7fa8",font:{size:11,family:"'Barlow Condensed'"},boxWidth:10,padding:10}},
         datalabels:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`}}},

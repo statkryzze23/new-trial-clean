@@ -632,7 +632,7 @@ function renderCharts(rows){
         generateLabels:chart=>chart.data.labels.map((l,i)=>({
           text:`${l}  ${chart.data.datasets[0].data[i]}`,
           fillStyle:chart.data.datasets[0].backgroundColor[i],hidden:false,index:i}))}},
-        datalabels:{display:true,color:"#ffffff",font:{family:"'Barlow Condensed'",weight:"bold",size:18},formatter:v=>v>0?v:""}}}
+        datalabels:{display:true,color:"#ff0000",font:{family:"'Barlow Condensed'",weight:"bold",size:24},formatter:v=>v>0?v:""}}}
   });
 }
 

@@ -207,11 +207,6 @@ tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
         <div class="clock-date" id="liveClockDate">—</div>
       
 <div style="display:flex;gap:10px;">
-
-    <button onclick="toggleFullscreen()">
-        ⛶ Full Screen
-    </button>
-
     <button onclick="downloadSnapshot()">
         📸 Snapshot
     </button>
@@ -219,7 +214,6 @@ tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
     <button onclick="downloadPDF()">
         📄 PDF
     </button>
-
 </div>
 </div>
       <div class="live-block">
@@ -790,19 +784,6 @@ async function downloadPDF() {
   pdf.save(
     `ProductionDashboard_${new Date().toISOString().slice(0,10)}.pdf`
   );
-}
-function toggleFullscreen() {
-
-    if (!document.fullscreenElement) {
-
-        document.documentElement.requestFullscreen();
-
-    } else {
-
-        document.exitFullscreen();
-
-    }
-
 }
 </script>
 </body>

@@ -331,9 +331,7 @@ function progBar(pct){
 
   return `
     <div class="prog-wrap">
-      <div class="prog-fill ${cls}" style="width:${capped}%">
-        <span class="prog-label">${Math.round(pct)}%</span>
-      </div>
+      <div class="prog-fill ${cls}" style="width:${capped}%"></div>
     </div>`;
 }
 
@@ -540,7 +538,7 @@ function renderDeptTable(rows){
       </td>
       <td class="r">${fmt(d.output)}</td>
       <td class="r" style="color:var(--muted)">${fmt(d.avgOutput)}</td>
-      <td style="min-width:90px">${progBar(outPct)}<span style="font-size:.65rem;color:var(--muted)">${outPct}%</span></td>
+      <td style="min-width:140px">${progBar(outPct)}</td>
       <td class="r"><span class="${pc(outPct)}">${outPct}%</span> ${arrow(d.output,d.avgOutput)}</td>
       <td><span class="badge badge-${outS}">${outS==="beat"?"BEATEN":outS==="low"?"LOW":"MET"}</span></td>
       <td class="r">${fmtC(d.labor)}</td>

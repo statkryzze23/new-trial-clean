@@ -206,9 +206,57 @@ tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
         <div class="clock" id="liveClock">—</div>
         <div class="clock-date" id="liveClockDate">—</div>
       </div>
-      <div style="display:flex;gap:10px;">
-  <button onclick="downloadSnapshot()">📸 Snapshot</button>
-  <button onclick="downloadPDF()">📄 PDF</button>
+<div class="action-buttons">
+
+  <!-- Snapshot -->
+  <button class="icon-btn snapshot-btn"
+          onclick="downloadSnapshot()"
+          title="Download Snapshot">
+
+    <svg xmlns="http://www.w3.org/2000/svg"
+         width="22"
+         height="22"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="2.2"
+         stroke-linecap="round"
+         stroke-linejoin="round">
+
+      <path d="M4 7h3l2-2h6l2 2h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"/>
+      <circle cx="12" cy="13" r="4"/>
+
+    </svg>
+
+  </button>
+
+  <!-- PDF -->
+  <button class="icon-btn pdf-btn"
+          onclick="downloadPDF()"
+          title="Download PDF">
+
+    <svg xmlns="http://www.w3.org/2000/svg"
+         width="22"
+         height="22"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="2.2"
+         stroke-linecap="round"
+         stroke-linejoin="round">
+
+      <path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <text x="7.5" y="17"
+            font-size="5"
+            font-family="Arial"
+            fill="currentColor"
+            stroke="none">PDF</text>
+
+    </svg>
+
+  </button>
+
 </div>
       <div class="live-block">
         <span class="live-dot"></span>LIVE

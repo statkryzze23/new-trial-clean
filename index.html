@@ -208,10 +208,13 @@ tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
       </div>
 <div class="action-buttons">
 
+ <div class="action-buttons">
+
   <!-- Snapshot -->
   <button class="icon-btn snapshot-btn"
           onclick="downloadSnapshot()"
-          title="Download Snapshot">
+          title="Download Snapshot"
+          aria-label="Download Snapshot">
 
     <svg xmlns="http://www.w3.org/2000/svg"
          width="22"
@@ -223,9 +226,8 @@ tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
          stroke-linecap="round"
          stroke-linejoin="round">
 
-      <path d="M4 7h3l2-2h6l2 2h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"/>
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
       <circle cx="12" cy="13" r="4"/>
-
     </svg>
 
   </button>
@@ -233,7 +235,8 @@ tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
   <!-- PDF -->
   <button class="icon-btn pdf-btn"
           onclick="downloadPDF()"
-          title="Download PDF">
+          title="Download PDF"
+          aria-label="Download PDF">
 
     <svg xmlns="http://www.w3.org/2000/svg"
          width="22"
@@ -245,14 +248,13 @@ tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
          stroke-linecap="round"
          stroke-linejoin="round">
 
-      <path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
       <polyline points="14 2 14 8 20 8"/>
-      <text x="7.5" y="17"
-            font-size="5"
-            font-family="Arial"
-            fill="currentColor"
-            stroke="none">PDF</text>
-
+      <path d="M8 13h2a2 2 0 0 1 0 4H8z"/>
+      <path d="M13 13h2"/>
+      <path d="M13 17v-4"/>
+      <path d="M17 13v4"/>
+      <path d="M17 17h2"/>
     </svg>
 
   </button>

@@ -76,9 +76,9 @@ thead th{background:var(--surface2);padding:6px 10px;font-size:.68rem;font-weigh
   text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:left;
   border-bottom:1px solid var(--border2);white-space:nowrap}
 thead th.r{text-align:right}
-tbody td{padding:6px 10px;font-size:.9rem;border-bottom:1px solid var(--border);color:var(--text)}
+tbody td{padding:10px 12px;font-size:.9rem;border-bottom:1px solid var(--border);color:var(--text)}
 tbody td.r{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
-tbody td.dept-name{font-weight:900;font-size:1.05rem;letter-spacing:.5px}
+tbody td.dept-name{font-weight:900;font-size:1.18rem;letter-spacing:.6px}
 tbody tr:last-child td{border-bottom:none}
 
 tbody tr.row-beat td{background:rgba(0,214,143,0.05)}
@@ -108,8 +108,8 @@ tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
 .tl-yellow{background:var(--yellow);color:var(--yellow)}
 .tl-red{background:var(--red);color:var(--red)}
 
-.prog-wrap{width:100%;background:rgba(255,255,255,0.07);border-radius:4px;height:7px;margin-top:3px;overflow:hidden}
-.prog-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.prog-wrap{width:100%;background:rgba(255,255,255,0.07);border-radius:10px;height:12px;margin-top:6px;overflow:hidden}
+.prog-fill{height:100%;border-radius:10px;transition:width .6s ease}
 .prog-green{background:var(--green)}.prog-yellow{background:var(--yellow)}.prog-red{background:var(--red)}
 
 .eff-score{display:inline-block;min-width:38px;text-align:center;
@@ -326,9 +326,15 @@ function tl(status){
 }
 
 function progBar(pct){
-  const capped=Math.min(pct,100);
-  const cls=pct>=100?"prog-green":pct>=85?"prog-yellow":"prog-red";
-  return`<div class="prog-wrap"><div class="prog-fill ${cls}" style="width:${capped}%"></div></div>`;
+  const capped = Math.min(pct,100);
+  const cls = pct>=100 ? "prog-green" : pct>=85 ? "prog-yellow" : "prog-red";
+
+  return `
+    <div class="prog-wrap">
+      <div class="prog-fill ${cls}" style="width:${capped}%">
+        <span class="prog-label">${Math.round(pct)}%</span>
+      </div>
+    </div>`;
 }
 
 function evalRows(rows){

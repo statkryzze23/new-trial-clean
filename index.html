@@ -205,20 +205,21 @@ tbody tr.prod-row:hover td{background:rgba(255,255,255,0.015)}
       <div class="clock-block">
         <div class="clock" id="liveClock">—</div>
         <div class="clock-date" id="liveClockDate">—</div>
-      </div>
-<div class="action-buttons">
-
- <div class="action-buttons">
-
-  <div class="download-panel">
-    <div class="download-title">DOWNLOAD</div>
-
-    <div class="action-buttons">
-
+      
 <div style="display:flex;gap:10px;">
-  <button onclick="downloadSnapshot()">📸 Snapshot</button>
-  <button onclick="downloadPDF()">📄 PDF</button>
-</div>
+
+    <button onclick="toggleFullscreen()">
+        ⛶ Full Screen
+    </button>
+
+    <button onclick="downloadSnapshot()">
+        📸 Snapshot
+    </button>
+
+    <button onclick="downloadPDF()">
+        📄 PDF
+    </button>
+
 </div>
 </div>
       <div class="live-block">
@@ -508,7 +509,7 @@ function renderKPIs(rows){
       <div class="kpi-sub">Target ≤ 1.50% · ${avgWaste<=1.5?"✓ GOOD":"✗ HIGH"}</div>
     </div>
     <div class="kpi ${oc}">
-      <div class="kpi-label">Overall Performance</div>
+      <diAv class="kpi-label">Overall Performance</div>
       <div class="kpi-val">${overall}</div>
       <div class="kpi-sub">🟢 ${beat} Beat · 🟡 ${met} Met · 🔴 ${low} Low</div>
     </div>`;
@@ -789,6 +790,19 @@ async function downloadPDF() {
   pdf.save(
     `ProductionDashboard_${new Date().toISOString().slice(0,10)}.pdf`
   );
+}
+function toggleFullscreen() {
+
+    if (!document.fullscreenElement) {
+
+        document.documentElement.requestFullscreen();
+
+    } else {
+
+        document.exitFullscreen();
+
+    }
+
 }
 </script>
 </body>
